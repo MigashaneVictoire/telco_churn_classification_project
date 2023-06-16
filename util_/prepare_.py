@@ -10,15 +10,33 @@ import numpy as np
 import pandas as pd
 from sklearn.model_selection import train_test_split
 
-# Mac libraries
-import os
-
 # Personal libraries
 import acquire_
 import env
 
 #  Data preparation
 # -----------------------------------------------------------------
+def prep_telco_data():
+    # get my data
+    telco, query = acquire_.get_telco_data()
+    
+    # lis of columns to remove
+    drop_cols = ["customer_id", 
+                 "internet_service_type_id", 
+                 "contract_type_id",
+                "payment_type_id"]
+
+    # remove the columns
+    telco = telco.drop(columns=drop_cols)
+    
+    # get the mean of all the rows of total charges that are actual numbers
+    mean_of_digits_in_total_charges = telco[telco.total_charges.str.isdigit()].total_charges.astype("float").mean()
+
+
+    # replace all the empty (" ") cells with the mean of the digit rows of total_charges
+    # then convert the column into a float data type column
+    telco["total_charges"] = telco["total_charges"].str.replace(" ", str(mean_of_digits_in_total_charges)).astype("float")
+
 
 
 
