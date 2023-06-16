@@ -15,67 +15,6 @@ import os
 # Personal libraries
 import env
 
-# Caching files
-# -----------------------------------------------------------------
-# Remove encoding while loading csv data to python
-def catch_encoding_errors_(fileName:str) -> pd.DataFrame:
-    
-    """
-    parameters:
-        fileName: csv file name. Should look like (file.csv)
-    return:
-        file dataframe with no encoding errors
-    """
-    
-    # list of encodings to check for
-    encodings = ['utf-8', 'latin-1', 'cp1252', 'utf-16']
-    
-    # check encodings and return dataframe
-    for encoding in encodings:
-        try:
-            df = pd.read_csv(fileName, encoding=encoding)
-            break
-        except UnicodeDecodeError:
-            print(f"Failed to decode with {encoding} encoding.")
-    return df
-
-# get existing file in current directory
-def get_existing_csv_file_(fileName:str) -> pd.DataFrame:
-    """
-    parameters:
-        fileName: csv file name. Should look like (file.csv)
-    return:
-        file dataframe with no encoding errors after cheking for existance of file (in current directory)
-    """
-    if os.path.isfile(fileName):
-        return catch_encoding_errors_(fileName)
-    else:
-        userInput= input(f"Would you like to look in codeup database... (y/n)")
-
-        if userInput.lower() in ["n", "no"]:
-            print("Exit complete...!")
-        else:
-            db_input = input("Enter database name? \m")
-            table_input = input("Enter table name? \n")
-
-            userInput = input("Do you have a custom query or you want the entire table? (q/t)\n")
-
-            if userInput.lower() in ["t", "table"]:
-                return get_codeup_sql_data_(db_name=db_input, table_name=table_input)
-            
-            # else get the data from the codeup server and save it to the current directory
-            else:
-                # read the SQL query from codeup database
-                query_input= input("Enter query? \n")
-                df, query_out =  get_codeup_sql_data_(db_name=db_input, table_name=table_input, query=query_input)
-
-                # Write that dataframe to disk for later. Called "caching" the data for later.
-                df.to_csv(fileName)
-
-                # Return the dataframe to the calling code
-                return df, query_out
-
-
 # Data acquisition
 # -----------------------------------------------------------------
 # -----------------------------------------------------------------
@@ -107,3 +46,19 @@ def get_codeup_sql_data_(db_name: str, table_name: str = None, query: str= None)
     return data, query # return both the data and the query
 
 
+def get_telco_data():
+    """
+    Goal: To return my acquired data from the codeup database and make it available to preparetion
+    """
+
+    query_ = """
+        SELECT *
+        FROM customers #payment_types
+        JOIN contract_types ct USING(contract_type_id)
+        JOIN internet_service_types ist USING(internet_service_type_id)
+        JOIN payment_types pt USING(payment_type_id);
+        """
+
+    # get telco data from codeup database
+    telco, query = get_codeup_sql_data_(db_name="telco_churn", query=query_)
+    return telco, query
