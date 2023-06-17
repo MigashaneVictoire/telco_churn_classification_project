@@ -8,6 +8,8 @@ from typing import Tuple
 # Python libraries
 import numpy as np
 import pandas as pd
+import matplotlib.pyplot as plt
+import seaborn as sns
 from sklearn.model_selection import train_test_split
 
 # Personal libraries
@@ -16,7 +18,15 @@ import env
 
 #  Data preparation
 # -----------------------------------------------------------------
-def prep_telco_data():
+def cleaning_telco() -> pd.DataFrame:
+    """
+    Goal: remove and clean columns
+    perimenters:
+        None
+    return:
+        telco: telco dataframe with removed duplicated columns and clean coulumn data types
+    """
+
     # get my data
     telco, query = acquire_.get_telco_data()
     
@@ -37,9 +47,106 @@ def prep_telco_data():
     # then convert the column into a float data type column
     telco["total_charges"] = telco["total_charges"].str.replace(" ", str(mean_of_digits_in_total_charges)).astype("float")
 
+    return telco
 
 
 
+def prep_telco_visuals(telco: pd.DataFrame) -> None:
+    """
+    Goal: return preparation visuals
+
+    paremeters:
+        telco: pandas data from that has been cleaned using the cleaning_telco function
+    return:
+        visuals of the numeric columns and object columns
+    """
+    # get all numeric column names
+    numeric_cols = telco.select_dtypes("number").columns
+
+    # create numeric columns value counts visuals
+    for col in numeric_cols:
+
+        # print value counts an normalized value counts
+        print(col.upper())
+        print(telco[col].value_counts(dropna=False))
+        print(telco[col].value_counts(dropna=False, normalize=True))
+
+        # show visuals of the value counts
+        plt.figure(figsize=(5,3))
+        sns.histplot(telco[col].value_counts(dropna=False))
+        plt.show()
+
+    # get all object column names
+    object_cols = telco.select_dtypes("object").columns
+
+    # create object columns value counts visuals
+    for col in object_cols:
+
+        # print value counts an normalized value counts
+        print(col.upper())
+        print(telco[col].value_counts(dropna=False))
+        print(telco[col].value_counts(dropna=False, normalize=True))
+
+        # show visuals of the value counts
+        plt.figure(figsize=(5,3))
+        sns.histplot(telco[col].value_counts(dropna=False))
+        plt.show()
+
+
+def final_prep_telco() -> pd.DataFrame:
+    """
+    Goal: generate fully clean data for exploration and modeling
+
+    paremeters:
+        None
+    retunrn:
+        telco: full prepared pandas datasete of telco_churn data
+    """
+
+    # get my data
+    telco = cleaning_telco()
+
+    # get all columns from dataframe
+    all_columns = telco.columns
+
+    # containers of different variable types
+    categorical = []
+
+    # separate variables
+    for col in all_columns:
+        # count number of unique valus in the column
+        len_of_uniq = len(telco[col].unique())
+        
+        # also checking for only object data types
+        if (col != "churn") and (len_of_uniq <= 5) and (telco[col].dtype == "O"):
+            categorical.append(col)
+        else: pass
+
+    # generate dummy variables for each categorical column
+    telco_dummies = pd.get_dummies(telco[categorical])
+
+    # generate dummy variable for the target column
+    target_dummy = pd.get_dummies(telco["churn"], drop_first=True)
+
+    # get column name of all the dummies
+    dummy_cols = telco_dummies.columns
+
+    # clean the dummy columns by replacing "-" with "_" and make the name lower case
+    dummy_cols = dummy_cols.str.replace("-", "_").str.lower()
+
+    # concatinate the dummies to the telco data frame
+    telco["churn"] = target_dummy
+    telco[dummy_cols] = telco_dummies
+
+    # add a base line column for modeling
+    telco["baseline"] = int(telco.churn.mode())
+
+    # remove all original cate gorical columns and re-assign telco
+    telco = telco.drop(columns=categorical)
+
+    return telco
+
+    
 
 # -----------------------------------------------------------------
 # Split the data into train, validate and train
