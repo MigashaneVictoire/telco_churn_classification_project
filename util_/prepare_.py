@@ -18,7 +18,7 @@ import env
 
 #  Data preparation
 # -----------------------------------------------------------------
-def cleaning_telco() -> pd.DataFrame:
+def clean_telco_without_dummies() -> pd.DataFrame:
     """
     Goal: remove and clean columns
     perimenters:
@@ -56,7 +56,7 @@ def prep_telco_visuals(telco: pd.DataFrame) -> None:
     Goal: return preparation visuals
 
     paremeters:
-        telco: pandas data from that has been cleaned using the cleaning_telco function
+        telco: pandas data from that has been cleaned using the clean_telco_without_dummies function
     return:
         visuals of the numeric columns and object columns
     """
@@ -104,7 +104,7 @@ def final_prep_telco() -> pd.DataFrame:
     """
 
     # get my data
-    telco = cleaning_telco()
+    telco = clean_telco_without_dummies()
 
     # get all columns from dataframe
     all_columns = telco.columns
@@ -146,7 +146,6 @@ def final_prep_telco() -> pd.DataFrame:
 
     return telco
 
-    
 
 # -----------------------------------------------------------------
 # Split the data into train, validate and train
