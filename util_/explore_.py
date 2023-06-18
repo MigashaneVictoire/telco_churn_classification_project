@@ -16,7 +16,7 @@ sns.set_theme(style="whitegrid")
 
 def telco_univariate_visuals() -> None:
     """
-    Goal: generate univariate statistics visuals for the telco features
+    Goal: generate univariate statistics visuals for the telco trainingfeatures
     """
     # Get telco data
     telco = prepare_.clean_telco_without_dummies()
@@ -73,3 +73,49 @@ def telco_univariate_visuals() -> None:
         
         plt.tight_layout()
         plt.show()
+
+
+def telco_bivariate_stats_visuals() -> None:
+    """
+    Goal: retrieve all the bivariate visuals for the telco training dataset
+    """
+    # get combination of all columns paired with the target column
+    columns = train.columns
+    target = "churn"
+    combinations = []
+    for element in columns:
+        if element == "churn":
+            pass
+        else:
+            combinations.append((target, element))
+
+
+    # create a dummy for churn
+    train["churn"]= pd.get_dummies(train.churn, drop_first=True)
+
+    # generate visuals for bivariate statistics
+    for combo in combinations:
+        # descriptive statistics
+        print(combo[0].upper(), "vs", combo[1].upper())
+        print(train[combo[1]].describe())
+        
+        # create a subplot object
+        fig, ax = plt.subplots(nrows=2, ncols=2, figsize=(10, 5))
+        
+        # first visual
+        sns.barplot(data=train, x=combo[0], y=combo[1], ax=ax[0,0])
+        
+        # second visual
+        sns.stripplot(data=train, x=combo[0], y=combo[1], ax=ax[0,1])
+        
+        # third visual
+        sns.boxplot(data=train, x=combo[0], y=combo[1], ax=ax[1,0])
+        
+        # fourth visual
+        sns.violinplot(data=train, x=combo[0], y=combo[1], ax=ax[1,1])
+        
+        plt.tight_layout()
+        plt.show()
+
+
+
