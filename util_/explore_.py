@@ -119,3 +119,79 @@ def telco_bivariate_stats_visuals() -> None:
 
 
 
+def telco_multivariate_visuals():
+    # get a pair plot of all my numeric variable
+    sns.pairplot(train)
+
+    # gather all my numeric columns data
+    numerics_data = train.select_dtypes("number")
+
+    # Silence Seaborn warnings
+    warnings.filterwarnings("ignore", module="seaborn")
+
+    # get the combinations of numeric columns in pairs
+    combinations = []
+    combinations.extend(itertools.combinations(numerics_data.columns, 2))
+
+    #Note: here I am still using the training data not the melted
+    target = "churn"
+    for cols in combinations:
+        plt.figure(figsize=(5,3))
+        
+        # plot continuous vs continuous
+        if len(train[cols[0]].value_counts()) > 5 and len(train[cols[1]].value_counts()) > 5:
+            print(cols[0].upper(), "vs", cols[1].upper())
+            
+            sns.relplot(x=train[cols[0]], y=train[cols[1]], col=train[target])
+            plt.show()
+        else:
+            print(cols[0].upper(), "vs", cols[1].upper())
+
+            sns.boxenplot(x=train[cols[0]], y=train[cols[1]], hue=train[target])
+            plt.show()
+            
+    # gather all my numeric columns data
+    columns = train.select_dtypes("number").columns
+
+    plt.figure(figsize=(5,3))
+    # First plot with all categories
+    # melt the data from a wide format to long
+    melted_numerics = train[columns].melt(id_vars="churn")
+    sns.boxplot(data= melted_numerics, x="variable", y="value", hue="churn")
+    plt.title("All numerics vs churn")
+    plt.show()
+
+
+    # remove total_charges from the data
+    numerics_no_tCharges = []
+    for i in columns:
+        if i == "total_charges":
+            pass
+        else:
+            numerics_no_tCharges.append(i)
+
+    # all but tatal charges
+    # melt the data from a wide format to long
+    plt.figure(figsize=(5,3))
+    melted_numerics = train[numerics_no_tCharges].melt(id_vars="churn")
+    sns.boxplot(data= melted_numerics, x="variable", y="value", hue="churn")
+    plt.title("No total charges vs churn")
+    plt.show()
+
+
+
+    # remove monthly charges from the data
+    numerics_no_mCharges = []
+    for i in columns:
+        if i in ["monthly_charges","total_charges"]:
+            pass
+        else:
+            numerics_no_mCharges.append(i)
+
+    # all but tatal charges
+    # melt the data from a wide format to long
+    plt.figure(figsize=(5,3))
+    melted_numerics = train[numerics_no_mCharges].melt(id_vars="churn")
+    sns.boxplot(data= melted_numerics, x="variable", y="value", hue="churn")
+    plt.title("No monthly charges vs churn")
+    plt.show()
