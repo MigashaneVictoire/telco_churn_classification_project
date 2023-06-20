@@ -149,7 +149,7 @@ def telco_multivariate_visuals():
 
             sns.boxenplot(x=train[cols[0]], y=train[cols[1]], hue=train[target])
             plt.show()
-            
+
     # gather all my numeric columns data
     columns = train.select_dtypes("number").columns
 
@@ -195,3 +195,160 @@ def telco_multivariate_visuals():
     sns.boxplot(data= melted_numerics, x="variable", y="value", hue="churn")
     plt.title("No monthly charges vs churn")
     plt.show()
+
+
+def _verify_alpha_(p_value, alpha=0.05) -> None:
+    """
+    Goal: Test if we are acepting or rejecting the null
+    """
+    # oompare p-value to alpha
+    if p_value < alpha:
+        print("We have enough evidence to reject the null")
+    else:
+        print("we fail to reject the null at this time")
+
+
+def customers_with_DSL_test() -> pd.DataFrame:
+    """
+    Goal: to retrieve all information about my stats test on DSL customers
+    """
+    # load data
+    telco = prepare_.clean_telco_without_dummies()
+
+    # split data into train, validate and test
+    train, validate, test = prepare_.split_data_(df=telco,
+                        test_size=0.2, 
+                        validate_size=0.2,
+                        stratify_col="churn",
+                        random_state=95)
+
+
+    print("Null_hyp: There is no association between DSL customers and churn.")
+    print("Alt_hyp: There is an association between DSL customers and churn.")
+
+    # run a contegency tale
+    cont_table = pd.crosstab(train.churn, train.internet_service_type)
+    
+    # set significance level
+    alpha = 0.05
+
+    # test stats
+    chi2, p_value, degreeFreedom, exp_table = stats.chi2_contingency(cont_table)
+
+    # print results
+    print("chi2:", chi2)
+    print("p-value:", p_value)
+    print("defrees of freedom:", degreeFreedom, "\n\n")
+
+    print(cont_table)
+    # oompare p-value to alpha
+    if p_value < alpha:
+        print("We have enough evidence to reject the null")
+    else:
+        print("we fail to reject the null at this time")
+    return pd.DataFrame(exp_table)
+
+
+def churn_depend_on_contract():
+    """
+    Goal: to retrieve all information about my stats test on churn month with contract type
+    """
+    # load data
+    telco = prepare_.clean_telco_without_dummies()
+
+    # split data into train, validate and test
+    train, validate, test = prepare_.split_data_(df=telco,
+                        test_size=0.2, 
+                        validate_size=0.2,
+                        stratify_col="churn",
+                        random_state=95)
+
+
+    print("Question: 2.1 First, is there a linear relationship between monthly charges and tenure.")
+    print("Null_hyp: There is not linear relationship between monthly charges and tenure.")
+    print("Alt_hyp: There is linear relationship between monthly charges and tenure..")
+
+    # plot the columns
+    sns.relplot(data=train, x="monthly_charges", y="tenure", hue="churn",col="churn")
+
+    # confidence level
+    alpha = 0.05
+
+    # perform the pearson's rcorrelation test
+    r, p_value = stats.pearsonr(train.monthly_charges, train.tenure)
+
+    # print results
+    print("coeficient r:", r)
+    print("p-value:", p_value)
+    _verify_alpha_(p_value) # compare p-value to alpha
+
+
+    print("Question: 2.2 Are customers more or less likely to churn within the first 24 month with Telc")
+    print("Null_hyp: Customer churn rate with in the first 24 month is > 50%.")
+    print("Alt_hyp: Customer churn rate with in the first 24 month is <= 50%")
+
+    # separate firt 24 month from all other
+    first_24 = train[train.tenure <= 24]
+    other = train[train.tenure > 24]
+
+    # create mean and stanrd deviation for the two groups
+    first_24_mean, first_24_std = first_24.tenure.mean(), first_24.tenure.std()
+    other_mean, other_std = other.tenure.mean(), other.tenure.std()
+
+    # create distribution objects
+    first_24_dist = stats.norm(first_24_mean, first_24_std)
+    other_dist = stats.norm(other_mean, other_std)
+
+    # generate random variables
+    first_24_rand = first_24_dist.rvs(10_000)
+    other_rand = other_dist.rvs(10_000)
+
+    #plot
+    fig, ax = plt.subplots(nrows=1,ncols=2, figsize=(10,5))
+    sns.histplot(first_24_rand, ax=ax[0])
+    sns.histplot(other_rand, ax=ax[1])
+    plt.show()
+
+    # confidence level
+    alpha = 0.05
+
+    # test statistics
+    t_stats, p_value = stats.ttest_1samp(first_24_mean, other_mean)
+
+    # print results
+    print("test stats:", t_stats)
+    print("p-Value:",  p_value)
+
+    # oompare p-value to alpha
+    if (t_stats > 0) and (p_value < alpha):
+        print("We have enough evidence to reject the null")
+    else:
+        print("we fail to reject the null at this time")
+
+
+    print("Main Question: What month are customers most likely to churn and does that depend on their contract type?")
+    print("Null_hyp:The churn month is independent (no association) of the contract type.")
+    print("Alt_hyp: The churn month is dependent (association) of the contract type")
+
+
+        # retrieve my two groups
+    first_24 = train[train.tenure <= 24].tenure
+    contract_type = train[train.tenure <= 24].contract_type
+
+    cont_table = pd.crosstab(contract_type, first_24)
+
+    # set significance level
+    alpha = 0.05
+
+    # test stats
+    chi2, p_value, degreeFreedom, exp_table = stats.chi2_contingency(cont_table)
+
+    # print results
+    print("chi2:", chi2)
+    print("p-value:", p_value)
+    print("defrees of freedom:", degreeFreedom, "\n\n")
+
+    # conclusion
+    _verify_alpha_(p_value)
+
+    return pd.DataFrame(exp_table)
