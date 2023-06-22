@@ -120,6 +120,9 @@ def telco_bivariate_stats_visuals() -> None:
 
 
 def telco_multivariate_visuals():
+    """
+    Goal: retrieve all the mulivariate visuals for the telco training dataset
+    """
     # get a pair plot of all my numeric variable
     sns.pairplot(train)
 
@@ -206,47 +209,6 @@ def _verify_alpha_(p_value, alpha=0.05) -> None:
         print("We have enough evidence to reject the null")
     else:
         print("we fail to reject the null at this time")
-
-
-def customers_with_DSL_test() -> pd.DataFrame:
-    """
-    Goal: to retrieve all information about my stats test on DSL customers
-    """
-    # load data
-    telco = prepare_.clean_telco_without_dummies()
-
-    # split data into train, validate and test
-    train, validate, test = prepare_.split_data_(df=telco,
-                        test_size=0.2, 
-                        validate_size=0.2,
-                        stratify_col="churn",
-                        random_state=95)
-
-
-    print("Null_hyp: There is no association between DSL customers and churn.")
-    print("Alt_hyp: There is an association between DSL customers and churn.")
-
-    # run a contegency tale
-    cont_table = pd.crosstab(train.churn, train.internet_service_type)
-    
-    # set significance level
-    alpha = 0.05
-
-    # test stats
-    chi2, p_value, degreeFreedom, exp_table = stats.chi2_contingency(cont_table)
-
-    # print results
-    print("chi2:", chi2)
-    print("p-value:", p_value)
-    print("defrees of freedom:", degreeFreedom, "\n\n")
-
-    print(cont_table)
-    # oompare p-value to alpha
-    if p_value < alpha:
-        print("We have enough evidence to reject the null")
-    else:
-        print("we fail to reject the null at this time")
-    return pd.DataFrame(exp_table)
 
 
 def churn_depend_on_contract():

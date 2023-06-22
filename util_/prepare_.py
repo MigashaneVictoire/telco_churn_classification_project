@@ -142,7 +142,7 @@ def final_prep_telco() -> pd.DataFrame:
     telco["baseline"] = int(telco.churn.mode())
 
     # remove all original cate gorical columns and re-assign telco
-    telco = telco.drop(columns=categorical)
+    # telco = telco.drop(columns=categorical)
 
     return telco
 

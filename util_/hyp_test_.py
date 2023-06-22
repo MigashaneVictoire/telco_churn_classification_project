@@ -1,3 +1,4 @@
+from math import exp
 from termios import PARODD
 import numpy as np
 import pandas as pd
@@ -24,19 +25,17 @@ train, validate, test = prepare_.split_data_(df=telco,
                     stratify_col="churn",
                     random_state=95)
 
-def customers_with_DSL(train: pd.DataFrame=train) -> pd.DataFrame:
+def internet_service_with_churn(train = train) -> pd.DataFrame:
     """
-    Goal: To answer the following question with hypotheis testing...
-        Are customers with DSL more or less likely to churn?
-
-    Null_hyp: There is no association between DSL customers and churn.
-    Alt_hyp: There is an association between DSL customers and churn.
-
+    Goal: to retrieve all information about my stats test on internet service typs
     """
+
+    # print("Null_hyp: The type of internet service does not significantly impact the likelihood of churn?")
+    # print("Alt_hyp: The type of internet service significantly impact the likelihood of churn?")
 
     # run a contegency tale
     cont_table = pd.crosstab(train.churn, train.internet_service_type)
-
+    
     # set significance level
     alpha = 0.05
 
@@ -48,14 +47,14 @@ def customers_with_DSL(train: pd.DataFrame=train) -> pd.DataFrame:
     # print("p-value:", p_value)
     # print("defrees of freedom:", degreeFreedom, "\n\n")
 
-    # oompare p-value to alpha
+    # print(cont_table)
+    # # oompare p-value to alpha
     # if p_value < alpha:
     #     print("We have enough evidence to reject the null")
     # else:
     #     print("we fail to reject the null at this time")
-
-    # return the differncence between the acutl and the expected
-    return round(cont_table - exp_table, 0)
+    expected = pd.DataFrame(exp_table).astype(int)
+    return cont_table,  expected
 
 
 def monthly_charges_and_tenure(train: pd.DataFrame=train):
@@ -117,3 +116,31 @@ def partner_or_dependents(train:pd.DataFrame= train):
     # pd.DataFrame(exp_table)
 
     return round(cont_table - exp_table, 0)
+
+
+def tech_support_vs_churn(train=train):
+    """
+    Goal: to retrieve all information about my stats test on technical suport vs churn
+    """
+
+    # print("Null_hyp: Customers with technical support have the same or higher churn rate as those without it.")
+    # print("Alt_hyp: Customers with technical support have lower churn rate compared to those without it.")
+
+    # run a contegency tale
+    cont_table = pd.crosstab(train.churn, train.tech_support)
+    
+    # set significance level
+    alpha = 0.05
+
+    # test stats
+    chi2, p_value, degreeFreedom, exp_table = stats.chi2_contingency(cont_table)
+
+    # # print results
+    # print("chi2:", chi2)
+    # print("p-value:", p_value)
+    # print("defrees of freedom:", degreeFreedom, "\n\n")
+
+    # print(cont_table)
+    exp_table = pd.DataFrame(exp_table).astype(int)
+    # exp_table
+    return cont_table, exp_table
