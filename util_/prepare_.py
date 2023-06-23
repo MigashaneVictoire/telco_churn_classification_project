@@ -31,7 +31,7 @@ def clean_telco_without_dummies() -> pd.DataFrame:
     telco, query = acquire_.get_telco_data()
     
     # lis of columns to remove
-    drop_cols = ["customer_id", 
+    drop_cols = [# "customer_id",
                  "internet_service_type_id", 
                  "contract_type_id",
                 "payment_type_id"]

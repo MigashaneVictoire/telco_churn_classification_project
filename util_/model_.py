@@ -56,7 +56,7 @@ xvalidate = validate[features]
 yvalidate = validate.churn
 
 # the internet type feature dummy columns for modeling for testing
-xTeste = test[features]
+xTest = test[features]
 yTest = test.churn
 
 
@@ -241,3 +241,51 @@ def logistic_regression_model(xtrain = xtrain, ytrain = ytrain, xvalidate=xvalid
 
     # return the best knn model
     return bestModel
+
+
+def best_model_test(xtrain = xtrain, ytrain = ytrain, xTest=xTest):
+    """
+        Goal: test logistic regression model on the best C on my model and return the accuracy of test.
+        Also write the test predictions in a csv file.
+    """
+    # base line
+    train_baseline_acc_score = accuracy_score(train.churn, train.baseline)
+
+    # create ramdom tree object
+    logReg = LogisticRegression(C=0.0471, random_state=95, max_iter= 1000)
+
+    # fit the model
+    randFor = logReg.fit(xtrain, ytrain)
+
+    # pretict test
+    y_test_pred = logReg.predict(xTest)
+
+    # get prediction probability
+    y_test_pred_proba = logReg.predict_proba(xTest)
+
+    # get only probability of churn
+    churn_proba = []
+    for i in y_test_pred_proba:
+        churn_proba.append(i[1])
+        
+    # ouput for csv
+    output = {
+        
+        "customer_id": test.customer_id,
+        "churn_proba": churn_proba,
+        "prediction": y_test_pred
+    }
+
+    # # get accuracy scores
+    # train_score = randFor.score(xtrain, ytrain)
+    # validate_score = randFor.score(xvalidate, yvalidate)
+    test_score = randFor.score(xTest, yTest)
+
+    # pandas dataframe to convert to csv
+    customer_predictions = pd.DataFrame(output)
+
+    # covert to csv
+    customer_predictions.to_csv("customer_prediction.csv", mode='w')
+
+    return f"Logistic regression test accuracy: {round(test_score, 2)}"
+
