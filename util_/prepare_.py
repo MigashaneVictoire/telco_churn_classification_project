@@ -141,6 +141,13 @@ def final_prep_telco() -> pd.DataFrame:
     # add a base line column for modeling
     telco["baseline"] = int(telco.churn.mode())
 
+    # clean empty spaces in column names
+    all_columns_and_dummies = telco.columns
+    new_cols = []
+    for i in all_columns_and_dummies:
+        new_cols.append(i.replace(" ", "_").replace("-","_"))
+    telco[new_cols] = telco
+
     # remove all original cate gorical columns and re-assign telco
     # telco = telco.drop(columns=categorical)
 
