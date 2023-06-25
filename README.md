@@ -336,8 +336,8 @@ def get_db_access(database): # takes database name
 
 ### Use Table below as a template for all Modeling results for easy comparison:
 
-|Model|Validation Score|
-|----|----|----|
+|**Model**|**Validation Score**|
+|----|----|
 |Baseline|0.734675|
 |K-Nearest Neighbor|0.79489|
 |Decision Tree|0.785664| 
