@@ -45,19 +45,21 @@ ___
 [[Back to top](#top)]
 
 ### Project Outline:
-- create all the files I will need to fund a funcitoning project
-- create a .gitignore file and ignore my env.py file
-- start by acquiring data from the codeup database and document all my initail aquisition code in the acquire.py file
-- using the prepare file, I will clearn my data and split it into train, validatate, and test sets
-- then I will explore my data. Here it is important I focus on my main two questions which are:
-    - Are customers with DSL more or less likely to churn?
-    - What month are customers most likely to churn and does that depend on their contract type?
+- Create all the files I will need to make a funcitoning project (.py and .ipynd files)
+- Create a .gitignore file and ignore my env.py file
+- Start by acquiring data from the codeup database and document all my initail acquisition steps in the acquire.py file
+- Using the prepare file, clearn the data and split it into train, validatate, and test sets.
+- Explore xplore the data. (Focus on the main main questions)
+    - Does the type of internet service significantly impact the likelihood of churn?
+    - What month are customers most likely to churn and does that depend on their contract type?¶
+    - Do customers with technical support have a lower churn rate compared to those without it?¶
 
-- anser all my quesitons with stat test
-- make prediction of customer churn using my questions.
-- document findings (include 4 visuals)
-    - add important finding to the final notebook
-    - create csv file of findings of model.
+- Anser all the quesitons with statistical testing.
+    - Identify drivers of churn.
+- Make prediction of customer churn using driving features of churn.
+- Document findings (include 4 visuals)
+    - Add important finding to the final notebook
+    - Create csv file of test predictions on best perfomring model.
 
         
 ### Questions
@@ -72,7 +74,7 @@ ___
 
 ### Target variable
 
-- The target variable is customer churn.
+- The target variable is the `churn` column in the data.
 
 ### Need to haves (Deliverables):
 
@@ -135,7 +137,7 @@ ___
 ## <a name="findings"></a>Key Findings:
 [[Back to top](#top)]
 
-- Contract type, internet service type and technical support seems to be strong drivers for predicting churn in addition to there monthly charges. 
+- Contract type, internet service type, monthly charges, tenure and  technical support seems to be strong drivers for predicting churn.
 
 ***
 
@@ -169,20 +171,20 @@ ___
 ## <a name="wrangle"></a>Data Acquisition and Preparation
 [[Back to top](#top)]
 
-- **Teclco churn data from Codeup database**
+- **Teclco churn data from Codeup database.**
 
 Query: get access using the env.py file 
 
-{SQL}"""
+~~~
 SELECT *
 FROM customers #payment_types
 JOIN contract_types ct USING(contract_type_id)
 JOIN internet_service_types ist USING(internet_service_type_id)
 JOIN payment_types pt USING(payment_type_id);
-"""
+~~~
 
 **env.py setup**
-
+~~~
 # retrieve Codeup mySQL data
 def get_db_access(database): # takes database name
     # login info
@@ -193,9 +195,7 @@ def get_db_access(database): # takes database name
     # acces url
     acc_url = f'mysql+pymysql://{username}:{password}@{hostname}/{database}'
     return acc_url
-
-
-### Wrangle steps: 
+~~~
 
 
 *********************
@@ -247,6 +247,7 @@ def get_db_access(database): # takes database name
     - Chi-squared test
 
 **What month are customers most likely to churn and does that depend on their contract type?**
+
     - is there a linear relationship between monthly charges and tenure.
     - Are customers more or less likely to churn within the first 24 month with Telco.
     - To answer the main question in reguards to contract type.
@@ -316,8 +317,9 @@ def get_db_access(database): # takes database name
 - Baseline Results: 0.734675
     
 
-- Selected features to input into models:
-    - features = [Internet_service_type, monthly_charges, tenure, contract_type, phone_service, paperless_billing, and tech_support]
+- Selected features for modeling:
+
+```features = [Internet_service_type, monthly_charges, tenure, contract_type, phone_service, paperless_billing, and tech_support]```
 
     **Note: Only use the dummie (encoded) variables for the above features**
 
@@ -334,13 +336,13 @@ def get_db_access(database): # takes database name
 
 ### Use Table below as a template for all Modeling results for easy comparison:
 
-| Model | Validation/Out of Sample RMSE |
-| ---- | ----| ---- |
-| Baseline | 0.734675 |
-| K-Nearest Neighbor | 0.79489 | 
-| Decision Tree | 0.785664 | 
-| Random Forest | 0.796309 |
-| Logistic Regression | 0.798439 | 
+|Model|Validation Score|
+|----|----|----|
+|Baseline|0.734675|
+|K-Nearest Neighbor|0.79489|
+|Decision Tree|0.785664| 
+|Random Forest|0.796309|
+|Logistic Regression|0.798439|
 
 
 - Logistic Regression model performed the best
@@ -355,3 +357,5 @@ def get_db_access(database): # takes database name
 ## <a name="conclusion"></a>Conclusion:
 [[Back to top](#top)]
 
+- It would wise for telco to first direct our efforts on the month-to-month customer who have high monthly charges and are a within there first two years with telco's services. 
+- Telco should try and reachout to these custmers and provide technical suport as needed and see if they would stay with the services if they could change to DSL or get a bonus for signing a 1-year or 2-year contract.
