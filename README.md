@@ -350,7 +350,7 @@ def get_db_access(database): # takes database name
 
 ## Testing the Model
 
-- I selected logistic regression for my as my best model because it had more consistant results. And after running it through the test data, it performed just as good as the validation and test cases with an 80% accuracy score.
+- I selected logistic regression as my best model because it had more consistant results. And after running it through the test data, it performed just as good as the validation and test cases with an 80% accuracy score.
 
 ***
 
